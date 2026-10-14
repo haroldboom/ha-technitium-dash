@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.3
+
+- Icons: the add-on store and the integration now show the Technitium logo (the
+  integration ships it in `brand/`, which needs Home Assistant 2026.3 or later).
+
 ## 0.3.2
 
 - The cluster **Clients** count is now the number of distinct devices across all nodes.

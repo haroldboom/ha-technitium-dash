@@ -116,3 +116,11 @@ uv venv -p 3.13 .venv && uv pip install -p .venv -r requirements_test.txt
 
 The add-on server also runs standalone: `TECHNITIUM_TOKEN=… python3 technitium_dash/app/server.py`
 serves on :8081.
+
+## Credits
+
+This is an unofficial, community project and isn't made by Technitium. The icon is the
+Technitium logo, redrawn from `DnsServerCore/www/img/logo.png` in
+[TechnitiumSoftware/DnsServer](https://github.com/TechnitiumSoftware/DnsServer) (GPL-3.0).
+It's used only to show which server this connects to. The MIT license covers this
+project's code, not the logo.
