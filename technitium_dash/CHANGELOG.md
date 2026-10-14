@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- The add-on store page now has a description (the add-on folder had no README).
+
 ## 0.3.0
 
 - Pauses can be 5 to 60 minutes in 5-minute steps (the dashboard keeps its 5 / 15 / 30 /
