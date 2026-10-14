@@ -7,4 +7,5 @@ ARG BUILD_VERSION=dev
 ENV BUILD_VERSION=${BUILD_VERSION} PYTHONUNBUFFERED=1
 
 COPY app/ /app/
-CMD ["python3", "/app/server.py"]
+# s6 starts CMD with an empty environment; with-contenv restores SUPERVISOR_TOKEN and BUILD_VERSION
+CMD ["/usr/bin/with-contenv", "python3", "/app/server.py"]

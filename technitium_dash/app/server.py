@@ -462,6 +462,8 @@ def announce_discovery():
     """Tell Supervisor about this add-on so the HA integration can be set up in one click."""
     sup = os.environ.get("SUPERVISOR_TOKEN")
     if not sup:
+        if CFG["addon"]:
+            print("discovery skipped: no SUPERVISOR_TOKEN in the environment", flush=True)
         return
     body = json.dumps({"service": "technitium_dash", "config": {
         "host": socket.gethostname(), "port": CFG["port"], "api_key": API_KEY}}).encode()
