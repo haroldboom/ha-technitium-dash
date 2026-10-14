@@ -1,0 +1,217 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Connect to the Technitium Dash add-on",
+        "description": "Enter the add-on's URL. Home Assistant talks only to the add-on, never to Technitium directly.",
+        "data": {
+          "url": "[%key:common::config_flow::data::url%]",
+          "api_key": "[%key:common::config_flow::data::api_key%]"
+        },
+        "data_description": {
+          "url": "For example http://192.168.1.10:8081.",
+          "api_key": "The add-on's api_key option. Leave empty if it is not set."
+        }
+      },
+      "hassio_confirm": {
+        "title": "Technitium Cluster via Home Assistant add-on",
+        "description": "Do you want to configure Home Assistant to connect to the Technitium cluster provided by the add-on: {addon}?"
+      },
+      "reauth_confirm": {
+        "title": "[%key:common::config_flow::title::reauth%]",
+        "description": "The add-on at {url} rejected the API key. Enter the current api_key option.",
+        "data": {
+          "api_key": "[%key:common::config_flow::data::api_key%]"
+        },
+        "data_description": {
+          "api_key": "The add-on's api_key option. Leave empty if it is not set."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "invalid_url": "Not a valid URL.",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_service%]",
+      "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Technitium Cluster options",
+        "data": {
+          "scan_interval": "Update interval"
+        },
+        "data_description": {
+          "scan_interval": "Seconds between polls of the add-on's summary (minimum 30)."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "queries": {
+        "name": "Queries"
+      },
+      "blocked": {
+        "name": "Blocked"
+      },
+      "blocked_pct": {
+        "name": "Blocked percentage"
+      },
+      "cached_pct": {
+        "name": "Cached percentage"
+      },
+      "nxdomain": {
+        "name": "NXDOMAIN"
+      },
+      "server_failure": {
+        "name": "Server failures"
+      },
+      "clients": {
+        "name": "Clients"
+      },
+      "version": {
+        "name": "Version"
+      },
+      "drift_differences": {
+        "name": "Drift differences"
+      }
+    },
+    "binary_sensor": {
+      "connectivity": {
+        "name": "Connectivity"
+      },
+      "blocking": {
+        "name": "Blocking",
+        "state_attributes": {
+          "paused_until": {
+            "name": "Paused until"
+          }
+        }
+      },
+      "nodes_in_sync": {
+        "name": "Nodes in sync"
+      }
+    },
+    "button": {
+      "flush_cache": {
+        "name": "Flush cache"
+      },
+      "flush_cache_all": {
+        "name": "Flush cache (all nodes)"
+      },
+      "recheck_drift": {
+        "name": "Recheck drift"
+      }
+    }
+  },
+  "services": {
+    "block_domain": {
+      "name": "Block domain",
+      "description": "Adds a domain to the blocked zones of every node, or of one node.",
+      "fields": {
+        "domain": {
+          "name": "Domain",
+          "description": "Domain name. A pasted URL is accepted; the scheme and path are stripped."
+        },
+        "node": {
+          "name": "Node",
+          "description": "Only this node (short or full name, e.g. cyberdyne). Default: every node."
+        },
+        "config_entry_id": {
+          "name": "Cluster",
+          "description": "Which Technitium Cluster entry to use. Only needed when more than one is configured."
+        }
+      }
+    },
+    "unblock_domain": {
+      "name": "Unblock domain",
+      "description": "Removes a domain from the blocked zones of every node, or of one node.",
+      "fields": {
+        "domain": {
+          "name": "Domain",
+          "description": "Domain name. A pasted URL is accepted; the scheme and path are stripped."
+        },
+        "node": {
+          "name": "Node",
+          "description": "Only this node (short or full name, e.g. cyberdyne). Default: every node."
+        },
+        "config_entry_id": {
+          "name": "Cluster",
+          "description": "Which Technitium Cluster entry to use. Only needed when more than one is configured."
+        }
+      }
+    },
+    "allow_domain": {
+      "name": "Allow domain",
+      "description": "Adds a domain to the allowed zones of every node, or of one node.",
+      "fields": {
+        "domain": {
+          "name": "Domain",
+          "description": "Domain name. A pasted URL is accepted; the scheme and path are stripped."
+        },
+        "node": {
+          "name": "Node",
+          "description": "Only this node (short or full name, e.g. cyberdyne). Default: every node."
+        },
+        "config_entry_id": {
+          "name": "Cluster",
+          "description": "Which Technitium Cluster entry to use. Only needed when more than one is configured."
+        }
+      }
+    },
+    "unallow_domain": {
+      "name": "Unallow domain",
+      "description": "Removes a domain from the allowed zones of every node, or of one node.",
+      "fields": {
+        "domain": {
+          "name": "Domain",
+          "description": "Domain name. A pasted URL is accepted; the scheme and path are stripped."
+        },
+        "node": {
+          "name": "Node",
+          "description": "Only this node (short or full name, e.g. cyberdyne). Default: every node."
+        },
+        "config_entry_id": {
+          "name": "Cluster",
+          "description": "Which Technitium Cluster entry to use. Only needed when more than one is configured."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_auth": {
+      "message": "The Technitium Dash add-on rejected the API key."
+    },
+    "update_failed": {
+      "message": "Could not fetch the summary from the Technitium Dash add-on: {error}"
+    },
+    "node_write_failed": {
+      "message": "{action} failed on {failed} of {total} nodes: {errors}"
+    },
+    "drift_failed": {
+      "message": "Could not recheck drift: {error}"
+    },
+    "invalid_domain": {
+      "message": "\"{domain}\" is not a valid domain name."
+    },
+    "unknown_node": {
+      "message": "Unknown node \"{node}\". Known nodes: {nodes}."
+    },
+    "entry_not_found": {
+      "message": "No Technitium Cluster entry with ID {entry_id}."
+    },
+    "entry_required": {
+      "message": "More than one Technitium Cluster is configured; choose one with config_entry_id."
+    },
+    "entry_not_loaded": {
+      "message": "The Technitium Cluster integration is not loaded."
+    }
+  }
+}

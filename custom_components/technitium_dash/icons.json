@@ -1,0 +1,30 @@
+{
+  "entity": {
+    "sensor": {
+      "queries": {"default": "mdi:dns"},
+      "blocked": {"default": "mdi:shield-off"},
+      "blocked_pct": {"default": "mdi:percent"},
+      "cached_pct": {"default": "mdi:cached"},
+      "nxdomain": {"default": "mdi:help-network"},
+      "server_failure": {"default": "mdi:alert-circle"},
+      "clients": {"default": "mdi:devices"},
+      "version": {"default": "mdi:package-variant"},
+      "drift_differences": {"default": "mdi:compare-horizontal"}
+    },
+    "binary_sensor": {
+      "blocking": {"default": "mdi:shield-check", "state": {"off": "mdi:shield-off-outline"}},
+      "nodes_in_sync": {"default": "mdi:sync", "state": {"on": "mdi:sync-alert"}}
+    },
+    "button": {
+      "flush_cache": {"default": "mdi:broom"},
+      "flush_cache_all": {"default": "mdi:broom"},
+      "recheck_drift": {"default": "mdi:sync"}
+    }
+  },
+  "services": {
+    "block_domain": {"service": "mdi:cancel"},
+    "unblock_domain": {"service": "mdi:undo"},
+    "allow_domain": {"service": "mdi:check-circle"},
+    "unallow_domain": {"service": "mdi:undo-variant"}
+  }
+}

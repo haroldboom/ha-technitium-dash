@@ -1,0 +1,13 @@
+{
+  "domain": "technitium_dash",
+  "name": "Technitium Cluster",
+  "after_dependencies": ["hassio"],
+  "codeowners": ["@haroldboom"],
+  "config_flow": true,
+  "documentation": "https://github.com/haroldboom/ha-technitium-dash",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/haroldboom/ha-technitium-dash/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

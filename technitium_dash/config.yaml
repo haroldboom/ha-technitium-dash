@@ -1,0 +1,32 @@
+name: Technitium Cluster Dashboard
+version: "0.1.0"
+slug: technitium_dash
+description: Daily-use dashboard for a Technitium DNS cluster, with both nodes side by side and a drift check
+url: https://github.com/haroldboom/ha-technitium-dash
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: application
+boot: auto
+ingress: true
+ingress_port: 8081
+panel_icon: mdi:dns
+panel_title: Technitium
+hassio_api: true
+discovery:
+  - technitium_dash
+ports:
+  8081/tcp: null
+ports_description:
+  8081/tcp: Direct API access (optional). Leave empty; the sidebar and the integration don't need it.
+options:
+  technitium_url: http://192.168.1.198:5380
+  technitium_token: ""
+  api_key: ""
+  cache_seconds: 30
+schema:
+  technitium_url: url
+  technitium_token: password
+  api_key: password?
+  cache_seconds: int(5,3600)

@@ -1,0 +1,71 @@
+block_domain:
+  fields:
+    domain:
+      required: true
+      example: ads.example.com
+      selector:
+        text:
+    node:
+      required: false
+      example: cyberdyne
+      selector:
+        text:
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: technitium_dash
+
+unblock_domain:
+  fields:
+    domain:
+      required: true
+      example: ads.example.com
+      selector:
+        text:
+    node:
+      required: false
+      example: cyberdyne
+      selector:
+        text:
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: technitium_dash
+
+allow_domain:
+  fields:
+    domain:
+      required: true
+      example: ads.example.com
+      selector:
+        text:
+    node:
+      required: false
+      example: cyberdyne
+      selector:
+        text:
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: technitium_dash
+
+unallow_domain:
+  fields:
+    domain:
+      required: true
+      example: ads.example.com
+      selector:
+        text:
+    node:
+      required: false
+      example: cyberdyne
+      selector:
+        text:
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: technitium_dash
