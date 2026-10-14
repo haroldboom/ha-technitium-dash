@@ -139,9 +139,35 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(self.req("/tapi/cache/flush", "POST", {"node": "a"})[0], 403)
 
     def test_settings_writes_refused(self):
-        code, _ = self.req("/tapi/settings/set", "POST", {"enableBlocking": False}, headers={"X-Dash": "1"})
-        self.assertEqual(code, 403)
+        h = {"X-Dash": "1"}
+        # turning blocking off, any other setting, or a node target are all refused
+        self.assertEqual(self.req("/tapi/settings/set", "POST", {"enableBlocking": False}, headers=h)[0], 400)
+        self.assertEqual(self.req("/tapi/settings/set", "POST", {"enableBlocking": "false"}, headers=h)[0], 400)
+        self.assertEqual(self.req("/tapi/settings/set", "POST", {}, headers=h)[0], 400)
+        self.assertEqual(self.req("/tapi/settings/set", "POST", {"forwarders": "1.2.3.4"}, headers=h)[0], 403)
+        self.assertEqual(self.req("/tapi/settings/set", "POST", {"enableBlocking": True, "node": "umbrel"}, headers=h)[0], 403)
         self.assertEqual(self.fake.count("settings/set"), 0)
+
+    def test_pause_values_limited(self):
+        h = {"X-Dash": "1"}
+        for bad in ({"minutes": 0}, {"minutes": 1440}, {"minutes": "15; x"}, {}):
+            self.assertEqual(self.req("/tapi/settings/temporaryDisableBlocking", "POST", bad, headers=h)[0], 400)
+        self.assertEqual(self.req("/tapi/settings/temporaryDisableBlocking", "POST",
+                                  {"minutes": 15, "node": "umbrel"}, headers=h)[0], 403)
+        self.assertEqual(self.fake.count("settings/temporaryDisableBlocking"), 0)
+
+    def test_pause_and_resume_go_to_primary_and_refresh_status(self):
+        h = {"X-Dash": "1"}
+        self.req("/api/blocking")
+        before = self.fake.count("settings/get")
+        code, _ = self.req("/tapi/settings/temporaryDisableBlocking", "POST", {"minutes": 15}, headers=h)
+        self.assertEqual(code, 200)
+        self.assertIn(("settings/temporaryDisableBlocking", {"minutes": "15"}), self.fake.calls)
+        code, _ = self.req("/tapi/settings/set", "POST", {"enableBlocking": True}, headers=h)
+        self.assertEqual(code, 200)
+        self.assertIn(("settings/set", {"enableBlocking": "true"}), self.fake.calls)
+        self.req("/api/blocking")  # the write dropped the cached settings, so this reads again
+        self.assertGreater(self.fake.count("settings/get"), before)
 
     def test_extra_params_refused(self):
         code, body = self.req("/tapi/blocked/add", "POST", {"domain": "x.com", "forwarders": "1.2.3.4"},

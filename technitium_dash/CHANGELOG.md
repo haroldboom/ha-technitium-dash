@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+- Pause blocking on every node for 5, 15, 30 or 60 minutes from the Blocking tab, and
+  resume early. Technitium turns blocking back on by itself when the pause ends. Needs
+  Settings **Modify** on the dashboard user. The add-on refuses every other settings
+  change, including turning blocking off.
+- Integration 0.2.0: `pause_blocking` and `resume_blocking` actions.
+
 ## 0.1.4
 
 - Header drops the title and logo (the Home Assistant panel already has a heading). The

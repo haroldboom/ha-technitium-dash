@@ -94,6 +94,24 @@ class TechnitiumDashCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             n for short, n in nodes.items() if wanted in (short, str(n.get("name") or "").lower())
         ]
 
+    async def async_write_cluster(self, path: str, payload: dict[str, Any]) -> None:
+        """POST tapi/<path> once to the primary; Technitium relays it to every node."""
+        try:
+            resp = await self.client.write(path, payload)
+        except TechnitiumDashAuthError:
+            msg = "add-on rejected the API key"
+        except TechnitiumDashError as err:
+            msg = str(err)
+        else:
+            if resp.get("status") == "ok":
+                return
+            msg = resp.get("errorMessage") or resp.get("status") or "unknown error"
+        raise HomeAssistantError(
+            translation_domain=DOMAIN,
+            translation_key="cluster_write_failed",
+            translation_placeholders={"action": path, "error": msg},
+        )
+
     async def async_write_nodes(
         self, path: str, nodes: list[dict[str, Any]], payload: dict[str, Any]
     ) -> None:

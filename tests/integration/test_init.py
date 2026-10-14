@@ -8,6 +8,7 @@ import json
 
 import aiohttp
 import pytest
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
@@ -420,6 +421,58 @@ async def test_service_transport_and_deny_failures(
     mock_addon.post(f"{URL}/tapi/blocked/add", exc=aiohttp.ClientConnectionError("down"))
     with pytest.raises(HomeAssistantError, match="2 of 2"):
         await hass.services.async_call(DOMAIN, "block_domain", {"domain": "x.com"}, blocking=True)
+
+
+@pytest.mark.parametrize("minutes", [5, "15", 60])
+async def test_pause_blocking(
+    hass: HomeAssistant, mock_addon: AiohttpClientMocker, config_entry, minutes
+) -> None:
+    """One POST to the primary (no node): Technitium relays the pause to every node."""
+    await _setup(hass, config_entry)
+    mock_addon.post(f"{URL}/tapi/settings/temporaryDisableBlocking", json={"status": "ok"})
+    await hass.services.async_call(DOMAIN, "pause_blocking", {"minutes": minutes}, blocking=True)
+    posts = _posts(mock_addon)
+    assert [(p[0], p[1]) for p in posts] == [
+        ("/tapi/settings/temporaryDisableBlocking", {"minutes": int(minutes)})
+    ]
+    assert posts[0][2]["X-Dash"] == "1"
+
+
+@pytest.mark.parametrize("minutes", [0, 10, 1440, "x"])
+async def test_pause_blocking_bad_minutes(
+    hass: HomeAssistant, mock_addon: AiohttpClientMocker, config_entry, minutes
+) -> None:
+    """Only the fixed pause lengths are accepted."""
+    await _setup(hass, config_entry)
+    with pytest.raises(vol.Invalid):
+        await hass.services.async_call(DOMAIN, "pause_blocking", {"minutes": minutes}, blocking=True)
+    assert _posts(mock_addon) == []
+
+
+async def test_resume_blocking(
+    hass: HomeAssistant, mock_addon: AiohttpClientMocker, config_entry
+) -> None:
+    """Resume only ever sends enableBlocking=true."""
+    await _setup(hass, config_entry)
+    mock_addon.post(f"{URL}/tapi/settings/set", json={"status": "ok"})
+    await hass.services.async_call(DOMAIN, "resume_blocking", {}, blocking=True)
+    assert [(p[0], p[1]) for p in _posts(mock_addon)] == [
+        ("/tapi/settings/set", {"enableBlocking": True})
+    ]
+
+
+async def test_pause_blocking_denied(
+    hass: HomeAssistant, mock_addon: AiohttpClientMocker, config_entry
+) -> None:
+    """Technitium's permission error reaches the user."""
+    await _setup(hass, config_entry)
+    mock_addon.post(
+        f"{URL}/tapi/settings/temporaryDisableBlocking",
+        json={"status": "error", "errorMessage": "Access was denied."},
+    )
+    with pytest.raises(HomeAssistantError, match="Access was denied") as err:
+        await hass.services.async_call(DOMAIN, "pause_blocking", {"minutes": 15}, blocking=True)
+    assert err.value.translation_key == "cluster_write_failed"
 
 
 async def test_service_validation(

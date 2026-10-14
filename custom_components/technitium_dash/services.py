@@ -14,8 +14,12 @@ import homeassistant.helpers.config_validation as cv
 from .const import (
     ATTR_CONFIG_ENTRY_ID,
     ATTR_DOMAIN,
+    ATTR_MINUTES,
     ATTR_NODE,
     DOMAIN,
+    PAUSE_MINUTES,
+    SERVICE_PAUSE_BLOCKING,
+    SERVICE_RESUME_BLOCKING,
     SERVICE_WRITE_PATHS,
 )
 from .coordinator import TechnitiumDashConfigEntry
@@ -27,6 +31,14 @@ SERVICE_SCHEMA = vol.Schema(
         vol.Optional(ATTR_CONFIG_ENTRY_ID): cv.string,
     }
 )
+
+PAUSE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_MINUTES): vol.All(vol.Coerce(int), vol.In(PAUSE_MINUTES)),
+        vol.Optional(ATTR_CONFIG_ENTRY_ID): cv.string,
+    }
+)
+RESUME_SCHEMA = vol.Schema({vol.Optional(ATTR_CONFIG_ENTRY_ID): cv.string})
 
 _LABEL = re.compile(r"^(?!-)[a-z0-9_-]{1,63}(?<!-)$")
 
@@ -113,3 +125,18 @@ def async_setup_services(hass: HomeAssistant) -> None:
 
     for service in SERVICE_WRITE_PATHS:
         hass.services.async_register(DOMAIN, service, _handle, schema=SERVICE_SCHEMA)
+
+    async def _pause(call: ServiceCall) -> None:
+        coordinator = _get_entry(hass, call).runtime_data
+        await coordinator.async_write_cluster(
+            "settings/temporaryDisableBlocking", {"minutes": call.data[ATTR_MINUTES]}
+        )
+        await coordinator.async_request_refresh()
+
+    async def _resume(call: ServiceCall) -> None:
+        coordinator = _get_entry(hass, call).runtime_data
+        await coordinator.async_write_cluster("settings/set", {"enableBlocking": True})
+        await coordinator.async_request_refresh()
+
+    hass.services.async_register(DOMAIN, SERVICE_PAUSE_BLOCKING, _pause, schema=PAUSE_SCHEMA)
+    hass.services.async_register(DOMAIN, SERVICE_RESUME_BLOCKING, _resume, schema=RESUME_SCHEMA)

@@ -95,7 +95,16 @@ WRITE_PATHS = {
     "blocked/delete": {"domain", "node"},
     "cache/flush": {"node"},
     "cache/delete": {"domain", "node"},
-}  # no settings writes: blocking on/off stays in the stock console
+    # Blocking can only be paused (Technitium turns it back on itself) or resumed early.
+    # Both go to the primary with no node: in a cluster Technitium relays them to every node.
+    "settings/temporaryDisableBlocking": {"minutes"},
+    "settings/set": {"enableBlocking"},
+}
+# Values the add-on lets through, where any value would be too much.
+WRITE_VALUES = {
+    ("settings/temporaryDisableBlocking", "minutes"): {"5", "15", "30", "60"},
+    ("settings/set", "enableBlocking"): {"true"},  # never off: no way to leave blocking disabled
+}
 
 
 def now_iso():
@@ -405,6 +414,9 @@ class Handler(BaseHTTPRequestHandler):
         if extra:
             return self.deny(f"param not allowed: {', '.join(sorted(extra))}")
         params = {k: ("true" if v is True else "false" if v is False else str(v)) for k, v in params.items()}
+        for (wpath, key), allowed in WRITE_VALUES.items():
+            if wpath == tpath and params.get(key) not in allowed:
+                return self.deny(f"{key} must be one of: {', '.join(sorted(allowed, key=lambda v: (len(v), v)))}", 400)
         r = tcall(tpath, params)
         # a write changes lists, cache contents and possibly drift: drop those caches
         section = tpath.split("/")[0]

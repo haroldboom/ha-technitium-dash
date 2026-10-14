@@ -183,6 +183,30 @@
           "description": "Which Technitium Cluster entry to use. Only needed when more than one is configured."
         }
       }
+    },
+    "pause_blocking": {
+      "name": "Pause blocking",
+      "description": "Turns ad blocking off on every node for a few minutes. Technitium turns it back on by itself.",
+      "fields": {
+        "minutes": {
+          "name": "Minutes",
+          "description": "How long to pause: 5, 15, 30 or 60 minutes."
+        },
+        "config_entry_id": {
+          "name": "Cluster",
+          "description": "Which Technitium Cluster entry to use. Only needed when more than one is configured."
+        }
+      }
+    },
+    "resume_blocking": {
+      "name": "Resume blocking",
+      "description": "Ends a pause early and turns ad blocking back on on every node.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Cluster",
+          "description": "Which Technitium Cluster entry to use. Only needed when more than one is configured."
+        }
+      }
     }
   },
   "exceptions": {
@@ -212,6 +236,9 @@
     },
     "entry_not_loaded": {
       "message": "The Technitium Cluster integration is not loaded."
+    },
+    "cluster_write_failed": {
+      "message": "{action} failed: {error}"
     }
   }
 }

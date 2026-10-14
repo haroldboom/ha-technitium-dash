@@ -33,6 +33,12 @@ SERVICE_WRITE_PATHS: Final = {
     SERVICE_UNALLOW_DOMAIN: "allowed/delete",
 }
 
+# Blocking can only be paused (Technitium re-enables it itself) or resumed early.
+SERVICE_PAUSE_BLOCKING: Final = "pause_blocking"
+SERVICE_RESUME_BLOCKING: Final = "resume_blocking"
+PAUSE_MINUTES: Final = (5, 15, 30, 60)
+
 ATTR_DOMAIN: Final = "domain"
+ATTR_MINUTES: Final = "minutes"
 ATTR_NODE: Final = "node"
 ATTR_CONFIG_ENTRY_ID: Final = "config_entry_id"

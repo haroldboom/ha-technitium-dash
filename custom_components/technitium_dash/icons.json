@@ -25,6 +25,8 @@
     "block_domain": {"service": "mdi:cancel"},
     "unblock_domain": {"service": "mdi:undo"},
     "allow_domain": {"service": "mdi:check-circle"},
-    "unallow_domain": {"service": "mdi:undo-variant"}
+    "unallow_domain": {"service": "mdi:undo-variant"},
+    "pause_blocking": {"service": "mdi:pause-circle"},
+    "resume_blocking": {"service": "mdi:play-circle"}
   }
 }

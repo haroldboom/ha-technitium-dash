@@ -69,3 +69,29 @@ unallow_domain:
       selector:
         config_entry:
           integration: technitium_dash
+
+pause_blocking:
+  fields:
+    minutes:
+      required: true
+      default: "15"
+      selector:
+        select:
+          options:
+            - "5"
+            - "15"
+            - "30"
+            - "60"
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: technitium_dash
+
+resume_blocking:
+  fields:
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: technitium_dash

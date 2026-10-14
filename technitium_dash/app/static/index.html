@@ -633,7 +633,8 @@ footer #themeBtn { margin-top: 12px; font-size: 12.5px; }
   <!-- ============ BLOCKING ============ -->
   <section class="view" id="v-blocking" aria-label="Blocking control">
     <div class="panel">
-      <div class="phead"><h2>Blocking</h2><span class="sub">Read-only. Turn blocking on or off in the stock console; it is per node</span></div>
+      <div class="phead"><h2>Blocking</h2><span class="sub">Pause it on every node for a while; Technitium turns it back on by itself. Turning it off for good stays in the stock console</span></div>
+      <div class="row" id="pauseRow" style="margin-bottom:14px"></div>
       <div class="bnodes" id="bnodes"><div class="skel">Loading…</div></div>
     </div>
     <div class="panel">
@@ -1215,8 +1216,30 @@ function bState(b) {
   if (pausedTill(b)) return 'paused';
   return b.enableBlocking ? 'on' : 'off';
 }
+const PAUSE_MIN = [5, 15, 30, 60];
+function renderPauseRow() {
+  const list = S.blocking && S.blocking.nodes || [];
+  const paused = list.some(b => pausedTill(b));
+  $('#pauseRow').innerHTML = paused
+    ? '<button class="btn allow" data-resume="1">' + icon('i-check') + 'Resume blocking now</button>'
+    : '<span class="muted" style="font-size:13.5px;flex-basis:100%">Pause on all nodes for</span>' +
+      PAUSE_MIN.map(m => '<button class="btn" data-pause="' + m + '">' + (m < 60 ? m + ' min' : m / 60 + ' h') + '</button>').join('');
+}
+$('#pauseRow').addEventListener('click', async e => {
+  const b = e.target.closest('[data-pause],[data-resume]'); if (!b) return;
+  $$('#pauseRow button').forEach(x => { x.disabled = true; });
+  const r = b.dataset.pause
+    ? await tpost('settings/temporaryDisableBlocking', { minutes: Number(b.dataset.pause) })
+    : await tpost('settings/set', { enableBlocking: true });
+  if (r.ok) toast(b.dataset.pause ? 'Blocking paused for ' + b.textContent : 'Blocking resumed', '', 'ok');
+  else toast(b.dataset.pause ? 'Could not pause blocking' : 'Could not resume blocking',
+    '<span class="ink2">' + esc(String(r.error || '').replace(/\.$/, '')) + (/denied/i.test(r.error || '') ? '. Give the dashboard user Modify on the Settings section in Technitium.' : '') + '</span>', 'bad');
+  await loadBlocking(true);
+  renderPauseRow();
+});
 function renderBlocking() {
   const list = S.blocking && S.blocking.nodes || [];
+  renderPauseRow();
   if (!list.length) { $('#bnodes').innerHTML = '<div class="empty">No blocking state returned.</div>'; return; }
   $('#bnodes').innerHTML = list.map(b => {
     const i = nodeIdx(b.short), st = bState(b), till = pausedTill(b);
@@ -1226,14 +1249,13 @@ function renderBlocking() {
       : st === 'off' ? 'Turned off in settings on this node. Queries are not filtered.'
       : st === 'unk' ? esc(b.error || 'No answer from this node')
       : 'Filtering queries with ' + esc(b.blockingType || 'the configured') + ' answers.';
-    const btn = ''; /* read-only: blocking on/off is managed in the stock console */
     return '<div class="bcard' + (st === 'unk' ? ' down' : '') + '" style="--nc:' + nodeColor(i) + '"><b>' + esc(b.short) + '</b>' +
       '<div class="state ' + st + '">' + word + '</div><div class="ink2" style="font-size:14px">' + sub + '</div>' +
       '<dl><dt>Answer type</dt><dd>' + esc(b.blockingType || '–') + '</dd>' +
       '<dt>Block-list URLs</dt><dd>' + esc(b.blockListUrlCount == null ? '–' : b.blockListUrlCount) + '</dd>' +
       '<dt>Block-list zones</dt><dd>' + (s ? fmt(s.blockListZones) : '–') + '</dd>' +
       '<dt>Your blocked zones</dt><dd>' + (s ? fmt(s.blockedZones) : '–') + '</dd>' +
-      '<dt>Your allowed zones</dt><dd>' + (s ? fmt(s.allowedZones) : '–') + '</dd></dl>' + btn + '</div>';
+      '<dt>Your allowed zones</dt><dd>' + (s ? fmt(s.allowedZones) : '–') + '</dd></dl></div>';
   }).join('');
 }
 function paintBlockPill() {

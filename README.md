@@ -13,8 +13,8 @@ A Home Assistant **add-on** and a matching **integration** for a
   block/allow actions for automations. It talks **only to the add-on**, never to
   Technitium.
 
-Settings stay in the Technitium web console. The add-on never changes DNS
-settings.
+Settings stay in the Technitium web console. The one exception is pausing blocking
+for a few minutes, which needs an extra permission (see below).
 
 ## Install
 
@@ -43,12 +43,16 @@ web console.
    | Cache          | ✅ | ✅ | ✅ | flush cache, clear one domain |
    | Allowed        | ✅ | ✅ | ✅ | allow / un-allow a domain |
    | Blocked        | ✅ | ✅ | ✅ | block / un-block a domain |
-   | Settings       | ✅ |    |    | blocking status, settings drift (read-only) |
+   | Settings       | ✅ | ✅* |    | blocking status, settings drift; *Modify only to pause blocking |
    | Administration | ✅ |    |    | cluster nodes and their state |
    | Zones, DnsClient, DhcpServer | | | | not needed |
 
-   Settings **Modify** is deliberately not needed: the add-on never changes DNS
-   settings. Leave it off.
+   Settings **Modify** is optional. It is only needed to **pause blocking** from the
+   dashboard or the integration. Technitium has no finer permission, so the token could
+   then change any setting. The add-on itself only lets two settings calls through: a
+   pause of 5, 15, 30 or 60 minutes, and "resume" (blocking back on). It refuses
+   everything else, including turning blocking off. Leave Modify off if you don't want
+   pausing.
 3. **Administration → Sessions → Create Token**: user `dashboard`, any token name.
    Copy the token into this add-on's `technitium_token` option.
 
@@ -86,6 +90,10 @@ to the primary, which answers "User already exists". This step won't be needed o
 Actions: `technitium_dash.block_domain`, `unblock_domain`, `allow_domain`,
 `unallow_domain` take `domain` and an optional `node`. By default they apply to
 every node.
+
+`technitium_dash.pause_blocking` (`minutes`: 5, 15, 30 or 60) pauses blocking on every
+node, and `resume_blocking` ends a pause early. In a cluster Technitium applies both to
+all nodes, so neither takes a `node`. They need Settings **Modify** (see above).
 
 The update interval is under the integration's options (default 5 min, minimum
 30 s). The dashboard page has its own refresh picker (Off to 1 h). Both are
