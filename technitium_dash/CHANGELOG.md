@@ -4,6 +4,9 @@
 
 - Fixed the giant tick on the **Resume blocking now** button, which also pushed the page
   sideways on phones. Icons inside buttons now have a fixed size.
+- The drift check no longer reports "1 differs" while blocking is paused. Each node
+  stamps the pause end time a fraction of a millisecond apart, so that field is now
+  ignored. Pause state is still shown per node on the Blocking tab.
 
 ## 0.3.3
 

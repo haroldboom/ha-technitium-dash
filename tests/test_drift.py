@@ -142,6 +142,7 @@ class DriftTests(unittest.TestCase):
         s["webServiceTlsCertificatePath"] = "/etc/umbrel.pfx"
         s["clusterDomain"] = "dns.home.arpa"  # unknown cluster-identity key
         s["blockListNextUpdatedOn"] = "2026-10-15T00:00:00Z"
+        s["temporaryDisableBlockingTill"] = "2026-10-14T12:56:20.1763087Z"  # same pause, stamped ms apart
         # dnsServerDomain already differs per node in the fixture
         r = self.run_drift()
         self.assertTrue(section(r, "settings")["ok"], section(r, "settings"))

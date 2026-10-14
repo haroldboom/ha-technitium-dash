@@ -55,6 +55,7 @@ IGNORE = {
     "dnsOverHttpsUnixSocket": "host filesystem path",
     "logFolder": "host filesystem path",
     "blockListNextUpdatedOn": "timestamp; each node schedules its own block-list refresh",
+    "temporaryDisableBlockingTill": "pause end time; each node stamps its own (ms apart), shown on the Blocking tab",
 }
 # Any other top-level key starting with "cluster" (cluster domain, node list,
 # node identity...) is ignored, except this one, which should match on both nodes.
