@@ -150,7 +150,7 @@ class ServerTest(unittest.TestCase):
 
     def test_pause_values_limited(self):
         h = {"X-Dash": "1"}
-        for bad in ({"minutes": 0}, {"minutes": 1440}, {"minutes": "15; x"}, {}):
+        for bad in ({"minutes": 0}, {"minutes": 12}, {"minutes": 65}, {"minutes": 1440}, {"minutes": "15; x"}, {}):
             self.assertEqual(self.req("/tapi/settings/temporaryDisableBlocking", "POST", bad, headers=h)[0], 400)
         self.assertEqual(self.req("/tapi/settings/temporaryDisableBlocking", "POST",
                                   {"minutes": 15, "node": "umbrel"}, headers=h)[0], 403)

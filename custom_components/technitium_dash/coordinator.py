@@ -18,7 +18,7 @@ from .api import (
     TechnitiumDashConnectionError,
     TechnitiumDashError,
 )
-from .const import CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import CONF_SCAN_INTERVAL, DEFAULT_PAUSE_MINUTES, DEFAULT_SCAN_INTERVAL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -53,6 +53,8 @@ class TechnitiumDashCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             ),
         )
         self.client = client
+        # Set (and restored after restarts) by the Blocking pause length slider.
+        self.pause_minutes: int = DEFAULT_PAUSE_MINUTES
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:

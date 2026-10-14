@@ -74,14 +74,14 @@ pause_blocking:
   fields:
     minutes:
       required: true
-      default: "15"
+      default: 15
       selector:
-        select:
-          options:
-            - "5"
-            - "15"
-            - "30"
-            - "60"
+        number:
+          min: 5
+          max: 60
+          step: 5
+          unit_of_measurement: min
+          mode: slider
     config_entry_id:
       required: false
       selector:

@@ -19,6 +19,12 @@
       "flush_cache": {"default": "mdi:broom"},
       "flush_cache_all": {"default": "mdi:broom"},
       "recheck_drift": {"default": "mdi:sync"}
+    },
+    "number": {
+      "pause_length": {"default": "mdi:timer-pause-outline"}
+    },
+    "switch": {
+      "blocking": {"default": "mdi:shield-check", "state": {"off": "mdi:shield-off-outline"}}
     }
   },
   "services": {

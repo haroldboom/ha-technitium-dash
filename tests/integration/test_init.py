@@ -76,7 +76,10 @@ async def test_setup_entities_and_states(
     uids = {e.unique_id for e in er.async_entries_for_config_entry(ent_reg, "entry1")}
     expected = {
         f"entry1_cluster_{k}"
-        for k in (*STAT_KEYS, "drift_differences", "nodes_in_sync", "flush_cache", "recheck_drift")
+        for k in (
+            *STAT_KEYS, "drift_differences", "nodes_in_sync", "flush_cache", "recheck_drift",
+            "blocking", "pause_length",
+        )
     }
     for n in NODES:
         expected |= {
@@ -423,7 +426,7 @@ async def test_service_transport_and_deny_failures(
         await hass.services.async_call(DOMAIN, "block_domain", {"domain": "x.com"}, blocking=True)
 
 
-@pytest.mark.parametrize("minutes", [5, "15", 60])
+@pytest.mark.parametrize("minutes", [5, "15", 35, 60])
 async def test_pause_blocking(
     hass: HomeAssistant, mock_addon: AiohttpClientMocker, config_entry, minutes
 ) -> None:
@@ -438,7 +441,7 @@ async def test_pause_blocking(
     assert posts[0][2]["X-Dash"] == "1"
 
 
-@pytest.mark.parametrize("minutes", [0, 10, 1440, "x"])
+@pytest.mark.parametrize("minutes", [0, 12, 65, 1440, "x"])
 async def test_pause_blocking_bad_minutes(
     hass: HomeAssistant, mock_addon: AiohttpClientMocker, config_entry, minutes
 ) -> None:
@@ -473,6 +476,65 @@ async def test_pause_blocking_denied(
     with pytest.raises(HomeAssistantError, match="Access was denied") as err:
         await hass.services.async_call(DOMAIN, "pause_blocking", {"minutes": 15}, blocking=True)
     assert err.value.translation_key == "cluster_write_failed"
+
+
+async def test_blocking_switch_state(
+    hass: HomeAssistant, mock_addon: AiohttpClientMocker, summary, config_entry
+) -> None:
+    """Off while any node is paused; flips back on once the pause has ended."""
+    await _setup(hass, config_entry)
+    eid = _eid(hass, "switch", "entry1_cluster_blocking")
+    state = hass.states.get(eid)
+    assert state.state == STATE_OFF  # umbrel is paused in the fixture
+    assert state.attributes["paused_until"] == "2026-10-14T01:30:00Z"
+
+    resumed = copy.deepcopy(summary)
+    for node in resumed["nodes"]:
+        node["blocking"] = {"enabled": True, "pausedUntil": None}
+    _replace_summary(mock_addon, resumed)
+    await config_entry.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+    state = hass.states.get(eid)
+    assert state.state == STATE_ON
+    assert state.attributes["paused_until"] is None
+
+
+@pytest.mark.parametrize(("slider", "minutes"), [(None, 15), (45, 45)])
+async def test_blocking_switch_off_pauses(
+    hass: HomeAssistant, mock_addon: AiohttpClientMocker, config_entry, slider, minutes
+) -> None:
+    """Turning the switch off is a timed pause (slider length), never a permanent off."""
+    await _setup(hass, config_entry)
+    if slider is not None:
+        await hass.services.async_call(
+            "number", "set_value",
+            {"entity_id": _eid(hass, "number", "entry1_cluster_pause_length"), "value": slider},
+            blocking=True,
+        )
+    assert hass.states.get(_eid(hass, "number", "entry1_cluster_pause_length")).state == f"{minutes}"
+    mock_addon.post(f"{URL}/tapi/settings/temporaryDisableBlocking", json={"status": "ok"})
+    await hass.services.async_call(
+        "switch", "turn_off", {"entity_id": _eid(hass, "switch", "entry1_cluster_blocking")},
+        blocking=True,
+    )
+    assert [(p[0], p[1]) for p in _posts(mock_addon)] == [
+        ("/tapi/settings/temporaryDisableBlocking", {"minutes": minutes})
+    ]
+
+
+async def test_blocking_switch_on_resumes(
+    hass: HomeAssistant, mock_addon: AiohttpClientMocker, config_entry
+) -> None:
+    """Turning the switch on ends the pause."""
+    await _setup(hass, config_entry)
+    mock_addon.post(f"{URL}/tapi/settings/set", json={"status": "ok"})
+    await hass.services.async_call(
+        "switch", "turn_on", {"entity_id": _eid(hass, "switch", "entry1_cluster_blocking")},
+        blocking=True,
+    )
+    assert [(p[0], p[1]) for p in _posts(mock_addon)] == [
+        ("/tapi/settings/set", {"enableBlocking": True})
+    ]
 
 
 async def test_service_validation(
@@ -581,3 +643,15 @@ async def test_button_recheck_drift_failure(
     with pytest.raises(HomeAssistantError) as err:
         await _press(hass, "entry1_cluster_recheck_drift")
     assert err.value.translation_key == "drift_failed"
+
+
+async def test_pause_length_slider_bounds(
+    hass: HomeAssistant, mock_addon: AiohttpClientMocker, config_entry
+) -> None:
+    """The slider stays within what the add-on accepts."""
+    await _setup(hass, config_entry)
+    eid = _eid(hass, "number", "entry1_cluster_pause_length")
+    attrs = hass.states.get(eid).attributes
+    assert (attrs["min"], attrs["max"], attrs["step"], attrs["mode"]) == (5, 60, 5, "slider")
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call("number", "set_value", {"entity_id": eid, "value": 90}, blocking=True)

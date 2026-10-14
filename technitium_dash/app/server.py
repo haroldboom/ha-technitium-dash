@@ -102,7 +102,7 @@ WRITE_PATHS = {
 }
 # Values the add-on lets through, where any value would be too much.
 WRITE_VALUES = {
-    ("settings/temporaryDisableBlocking", "minutes"): {"5", "15", "30", "60"},
+    ("settings/temporaryDisableBlocking", "minutes"): {str(m) for m in range(5, 61, 5)},  # 5-60, steps of 5
     ("settings/set", "enableBlocking"): {"true"},  # never off: no way to leave blocking disabled
 }
 

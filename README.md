@@ -50,7 +50,7 @@ web console.
    Settings **Modify** is optional. It is only needed to **pause blocking** from the
    dashboard or the integration. Technitium has no finer permission, so the token could
    then change any setting. The add-on itself only lets two settings calls through: a
-   pause of 5, 15, 30 or 60 minutes, and "resume" (blocking back on). It refuses
+   pause of 5 to 60 minutes, and "resume" (blocking back on). It refuses
    everything else, including turning blocking off. Leave Modify off if you don't want
    pausing.
 3. **Administration → Sessions → Create Token**: user `dashboard`, any token name.
@@ -86,13 +86,20 @@ to the primary, which answers "User already exists". This step won't be needed o
 | Connectivity, Blocking (attribute `paused_until`) | | ✅ |
 | Button: Flush cache | ✅ (all nodes) | ✅ |
 | Button: Recheck drift | ✅ | |
+| Switch: Blocking (off = pause, back on by itself when the pause ends) | ✅ | |
+| Number: Blocking pause length (slider, 5–60 min) | ✅ | |
 
 Actions: `technitium_dash.block_domain`, `unblock_domain`, `allow_domain`,
 `unallow_domain` take `domain` and an optional `node`. By default they apply to
 every node.
 
-`technitium_dash.pause_blocking` (`minutes`: 5, 15, 30 or 60) pauses blocking on every
-node, and `resume_blocking` ends a pause early. In a cluster Technitium applies both to
+The **Blocking** switch pauses blocking on every node when you turn it off, for as
+long as the **Blocking pause length** slider says (5 to 60 minutes, default 15). When
+the pause ends, Technitium turns blocking back on and the switch follows. Turning the
+switch on ends the pause early. It can't turn blocking off for good.
+
+`technitium_dash.pause_blocking` (`minutes`: 5 to 60, in steps of 5) pauses blocking on
+every node, and `resume_blocking` ends a pause early. In a cluster Technitium applies both to
 all nodes, so neither takes a `node`. They need Settings **Modify** (see above).
 
 The update interval is under the integration's options (default 5 min, minimum

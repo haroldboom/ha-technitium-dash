@@ -36,7 +36,12 @@ SERVICE_WRITE_PATHS: Final = {
 # Blocking can only be paused (Technitium re-enables it itself) or resumed early.
 SERVICE_PAUSE_BLOCKING: Final = "pause_blocking"
 SERVICE_RESUME_BLOCKING: Final = "resume_blocking"
-PAUSE_MINUTES: Final = (5, 15, 30, 60)
+# 5 to 60 minutes in 5-minute steps; the add-on accepts the same values.
+PAUSE_MIN: Final = 5
+PAUSE_MAX: Final = 60
+PAUSE_STEP: Final = 5
+PAUSE_MINUTES: Final = tuple(range(PAUSE_MIN, PAUSE_MAX + 1, PAUSE_STEP))
+DEFAULT_PAUSE_MINUTES: Final = 15
 
 ATTR_DOMAIN: Final = "domain"
 ATTR_MINUTES: Final = "minutes"

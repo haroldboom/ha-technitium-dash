@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- Pauses can be 5 to 60 minutes in 5-minute steps (the dashboard keeps its 5 / 15 / 30 /
+  60 buttons).
+- Integration 0.3.0: a **Blocking** switch (off pauses blocking on every node, and it
+  flips back on when Technitium re-enables blocking) and a **Blocking pause length**
+  slider that sets how long. Blocking still can't be turned off for good from HA.
+
 ## 0.2.0
 
 - Pause blocking on every node for 5, 15, 30 or 60 minutes from the Blocking tab, and

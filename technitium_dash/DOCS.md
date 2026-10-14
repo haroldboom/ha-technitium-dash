@@ -33,7 +33,7 @@ web console.
    Settings **Modify** is optional. It is only needed to **pause blocking** from the
    dashboard or the integration. Technitium has no finer permission, so the token could
    then change any setting. The add-on itself only lets two settings calls through: a
-   pause of 5, 15, 30 or 60 minutes, and "resume" (blocking back on). It refuses
+   pause of 5 to 60 minutes, and "resume" (blocking back on). It refuses
    everything else, including turning blocking off. Leave Modify off if you don't want
    pausing.
 3. **Administration → Sessions → Create Token**: user `dashboard`, any token name.

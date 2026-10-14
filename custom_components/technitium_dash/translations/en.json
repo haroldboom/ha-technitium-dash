@@ -109,6 +109,21 @@
       "recheck_drift": {
         "name": "Recheck drift"
       }
+    },
+    "switch": {
+      "blocking": {
+        "name": "Blocking",
+        "state_attributes": {
+          "paused_until": {
+            "name": "Paused until"
+          }
+        }
+      }
+    },
+    "number": {
+      "pause_length": {
+        "name": "Blocking pause length"
+      }
     }
   },
   "services": {
@@ -190,7 +205,7 @@
       "fields": {
         "minutes": {
           "name": "Minutes",
-          "description": "How long to pause: 5, 15, 30 or 60 minutes."
+          "description": "How long to pause, 5 to 60 minutes in 5-minute steps."
         },
         "config_entry_id": {
           "name": "Cluster",
