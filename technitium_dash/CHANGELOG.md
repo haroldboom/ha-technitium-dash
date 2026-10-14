@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.4
+
+- Fixed the giant tick on the **Resume blocking now** button, which also pushed the page
+  sideways on phones. Icons inside buttons now have a fixed size.
+
 ## 0.3.3
 
 - Icons: the add-on store and the integration now show the Technitium logo (the
