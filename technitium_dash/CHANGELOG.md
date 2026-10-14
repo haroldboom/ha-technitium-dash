@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.5
+
+- Tap the **Blocking** pill at the top for a menu: pause on all nodes for 5 / 15 / 30 min
+  or 1 h, or **Resume blocking now** while paused, plus a link to the Blocking tab.
+- The shield on the pill is green while blocking is on.
+
 ## 0.3.4
 
 - Fixed the giant tick on the **Resume blocking now** button, which also pushed the page

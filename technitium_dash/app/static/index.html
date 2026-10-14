@@ -158,7 +158,8 @@ header.top {
   .pair .nd { min-width: 0; }
   .pair .nd > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pair .link { flex: 1 1 auto; width: auto; min-width: 52px; margin: 0 8px; }
-  #blkPill { flex: 0 1 auto; min-width: 0; height: 36px; margin-right: auto; }
+  #blkWrap { flex: 0 1 auto; min-width: 0; margin-right: auto; display: flex; }
+  #blkPill { min-width: 0; height: 36px; }
   #blkPill > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .rfr { gap: 4px; }
   .rfr .upd .w { display: none; }
@@ -179,6 +180,26 @@ header.top {
 .pill.warn { color: var(--warn); background: var(--warn-bg); border-color: color-mix(in srgb, var(--warn) 35%, transparent); }
 .pill.bad { color: var(--bad); background: var(--bad-bg); border-color: color-mix(in srgb, var(--bad) 35%, transparent); }
 .pill.ok { color: var(--ink-2); }
+.pill.ok.on svg:first-child { color: var(--ok); }
+.pill .chev { width: 12px; height: 12px; opacity: .6; margin-left: -1px; }
+.blkwrap { position: relative; }
+.menu {
+  position: absolute; left: 0; top: calc(100% + 6px); z-index: 30; min-width: 200px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow);
+  padding: 6px; display: flex; flex-direction: column;
+}
+.menu[hidden] { display: none; }
+.menu .mh { font-size: 12px; color: var(--ink-3, var(--ink-2)); padding: 6px 10px 4px; }
+.menu button {
+  display: flex; align-items: center; gap: 8px; text-align: left; border: 0; background: none; color: var(--ink);
+  font: inherit; font-size: 14px; font-weight: 600; padding: 9px 10px; border-radius: 7px; cursor: pointer;
+}
+.menu button:hover, .menu button:focus-visible { background: var(--surface-2); outline: none; }
+.menu button:disabled { opacity: .5; cursor: progress; }
+.menu button svg { flex: none; width: 15px; height: 15px; }
+.menu .resume { color: var(--ok); }
+.menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 2px; }
+.menu .link { color: var(--ink-2); font-weight: 500; }
 .icon-btn {
   width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
   display: inline-grid; place-items: center; cursor: pointer;
@@ -507,6 +528,7 @@ footer #themeBtn { margin-top: 12px; font-size: 12.5px; }
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6L12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6.5 9.5L12 15l5.5-5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4.5V11h-6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
@@ -519,7 +541,10 @@ footer #themeBtn { margin-top: 12px; font-size: 12.5px; }
       <span class="link"><em id="pairTxt">checking</em></span>
       <span class="nd" id="pairB" style="color:var(--n1)"><i></i><span>secondary</span></span>
     </button>
-    <button class="pill ok" id="blkPill" title="Blocking control"><svg><use href="#i-shield"/></svg><span>Blocking</span></button>
+    <div class="blkwrap" id="blkWrap">
+      <button class="pill ok" id="blkPill" title="Pause or resume blocking" aria-haspopup="menu" aria-expanded="false" aria-controls="blkMenu"><svg><use href="#i-shield"/></svg><span>Blocking</span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></button>
+      <div class="menu" id="blkMenu" role="menu" hidden></div>
+    </div>
     <div class="rfr" id="rfr">
       <span class="upd" id="updTxt" aria-live="off"></span>
       <label class="rsel" title="Auto-refresh interval"><svg aria-hidden="true"><use href="#i-clock"/></svg><span class="sr">Auto-refresh</span>
@@ -792,7 +817,35 @@ function route() {
 }
 window.addEventListener('hashchange', route);
 $('#pair').addEventListener('click', () => { location.hash = '#drift'; });
-$('#blkPill').addEventListener('click', () => { location.hash = '#blocking'; });
+/* blocking pill: a menu to pause for a while, or resume */
+function blkMenuOpen(open) {
+  const m = $('#blkMenu'), p = $('#blkPill');
+  if (open) renderBlkMenu();
+  m.hidden = !open; p.setAttribute('aria-expanded', String(open));
+  if (open) { const f = m.querySelector('button'); if (f) f.focus(); }
+}
+function renderBlkMenu() {
+  const list = S.blocking && S.blocking.nodes || [];
+  const paused = list.some(b => pausedTill(b));
+  $('#blkMenu').innerHTML = (paused
+    ? '<button role="menuitem" class="resume" data-resume="1">' + icon('i-check') + 'Resume blocking now</button>'
+    : '<div class="mh">Pause on all nodes for</div>' +
+      PAUSE_MIN.map(m => '<button role="menuitem" data-pause="' + m + '">' + icon('i-pause') + (m < 60 ? m + ' min' : m / 60 + ' h') + '</button>').join('')) +
+    '<hr><button role="menuitem" class="link" data-go="1">Blocking details</button>';
+}
+$('#blkPill').addEventListener('click', e => { e.stopPropagation(); blkMenuOpen($('#blkMenu').hidden); });
+$('#blkMenu').addEventListener('click', async e => {
+  e.stopPropagation();
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.go) { blkMenuOpen(false); location.hash = '#blocking'; return; }
+  $$('#blkMenu button').forEach(x => { x.disabled = true; });
+  await pauseOrResume(b.dataset.pause ? Number(b.dataset.pause) : 0);
+  blkMenuOpen(false);
+});
+document.addEventListener('click', () => { if (!$('#blkMenu').hidden) blkMenuOpen(false); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('#blkMenu').hidden) { blkMenuOpen(false); $('#blkPill').focus(); }
+});
 
 /* ================= nodes ================= */
 async function loadNodes(quiet) {
@@ -1226,17 +1279,22 @@ function renderPauseRow() {
     : '<span class="muted" style="font-size:13.5px;flex-basis:100%">Pause on all nodes for</span>' +
       PAUSE_MIN.map(m => '<button class="btn" data-pause="' + m + '">' + (m < 60 ? m + ' min' : m / 60 + ' h') + '</button>').join('');
 }
-$('#pauseRow').addEventListener('click', async e => {
-  const b = e.target.closest('[data-pause],[data-resume]'); if (!b) return;
-  $$('#pauseRow button').forEach(x => { x.disabled = true; });
-  const r = b.dataset.pause
-    ? await tpost('settings/temporaryDisableBlocking', { minutes: Number(b.dataset.pause) })
+/* minutes > 0 pauses every node for that long; 0 resumes */
+async function pauseOrResume(minutes) {
+  const label = minutes < 60 ? minutes + ' min' : minutes / 60 + ' h';
+  const r = minutes
+    ? await tpost('settings/temporaryDisableBlocking', { minutes })
     : await tpost('settings/set', { enableBlocking: true });
-  if (r.ok) toast(b.dataset.pause ? 'Blocking paused for ' + b.textContent : 'Blocking resumed', '', 'ok');
-  else toast(b.dataset.pause ? 'Could not pause blocking' : 'Could not resume blocking',
+  if (r.ok) toast(minutes ? 'Blocking paused for ' + label : 'Blocking resumed', '', 'ok');
+  else toast(minutes ? 'Could not pause blocking' : 'Could not resume blocking',
     '<span class="ink2">' + esc(String(r.error || '').replace(/\.$/, '')) + (/denied/i.test(r.error || '') ? '. Give the dashboard user Modify on the Settings section in Technitium.' : '') + '</span>', 'bad');
   await loadBlocking(true);
   renderPauseRow();
+}
+$('#pauseRow').addEventListener('click', async e => {
+  const b = e.target.closest('[data-pause],[data-resume]'); if (!b) return;
+  $$('#pauseRow button').forEach(x => { x.disabled = true; });
+  await pauseOrResume(b.dataset.pause ? Number(b.dataset.pause) : 0);
 });
 function renderBlocking() {
   const list = S.blocking && S.blocking.nodes || [];
@@ -1261,22 +1319,26 @@ function renderBlocking() {
 }
 function paintBlockPill() {
   const pill = $('#blkPill'), list = S.blocking && S.blocking.nodes || [];
+  const chev = icon('i-chev', 'chev');
   pill.className = 'pill ok';
-  if (!list.length) { pill.innerHTML = icon('i-shield') + '<span>Blocking</span>'; return; }
+  if (!list.length) { pill.innerHTML = icon('i-shield') + '<span>Blocking</span>' + chev; return; }
   const paused = list.map(pausedTill).filter(Boolean);
   const off = list.filter(b => b.ok && !b.enableBlocking);
   const unk = list.filter(b => !b.ok);
   if (paused.length) {
     pill.className = 'pill warn';
-    pill.innerHTML = icon('i-pause') + '<span>Paused <span data-till="' + Math.min(...paused) + '">' + clock(Math.min(...paused) - Date.now()) + '</span></span>';
+    pill.innerHTML = icon('i-pause') + '<span>Paused <span data-till="' + Math.min(...paused) + '">' + clock(Math.min(...paused) - Date.now()) + '</span></span>' + chev;
   } else if (off.length) {
     pill.className = 'pill bad';
-    pill.innerHTML = icon('i-x') + '<span>Off on ' + esc(off.map(b => b.short).join(', ')) + '</span>';
+    pill.innerHTML = icon('i-x') + '<span>Off on ' + esc(off.map(b => b.short).join(', ')) + '</span>' + chev;
   } else if (unk.length === list.length) {
-    pill.innerHTML = icon('i-warn') + '<span>Blocking unknown</span>';
+    pill.innerHTML = icon('i-warn') + '<span>Blocking unknown</span>' + chev;
   } else {
-    pill.innerHTML = icon('i-shield') + '<span>Blocking on' + (unk.length ? ', ' + esc(unk.map(b => b.short).join(', ')) + ' unknown' : '') + '</span>';
-  }
+    pill.className = 'pill ok on';
+    pill.innerHTML = icon('i-shield') + '<span>Blocking on' + (unk.length ? ', ' + esc(unk.map(b => b.short).join(', ')) + ' unknown' : '') + '</span>' + chev;
+  }  // keep an open menu in step (a pause can run out while it's showing "Resume")
+  const m = $('#blkMenu');
+  if (!m.hidden && !m.querySelector('button:disabled')) renderBlkMenu();
 }
 function renderFlushRow() {
   $('#flushRow').innerHTML = '<button class="btn" data-flush="all">Flush both nodes</button>' +
