@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Home DNS</title>
+<title>Technitium</title>
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,7 +117,9 @@ header.top {
   border-bottom: 1px solid var(--line);
 }
 .bar { display: flex; align-items: center; gap: 14px; min-height: 60px; flex-wrap: wrap; padding-top: 6px; padding-bottom: 6px; }
-.brand { display: flex; flex-direction: column; line-height: 1.1; margin-right: auto; }
+.brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+.brand .bt { display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
+.brand img { width: 30px; height: 30px; border-radius: 6px; flex: none; }
 .brand b { font-size: 19px; font-weight: 700; letter-spacing: -.025em; }
 .brand span { font-size: 12.5px; color: var(--ink-3); }
 
@@ -160,6 +162,7 @@ header.top {
   .brand { order: 0; flex: 1 1 0; min-width: 0; }
   .brand b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .brand span { display: none; }
+  .brand.has-logo .bt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .rfr { order: 1; gap: 4px; }
   .rfr .upd .w { display: none; }
   .rsel select { padding: 0 18px 0 26px; font-size: 12.5px; }
@@ -518,7 +521,7 @@ footer { color: var(--ink-3); font-size: 12.5px; padding: 20px 0 40px; text-alig
 
 <header class="top">
   <div class="wrap bar">
-    <div class="brand"><b>Home DNS</b><span id="sub">Technitium cluster</span></div>
+    <div class="brand"><img id="logo" src="logo.png" alt="" width="30" height="30"><div class="bt"><b>Technitium</b><span id="sub">DNS cluster</span></div></div>
     <button class="pair" id="pair" data-sync="unk" title="Open drift check" aria-label="Sync status between nodes">
       <span class="nd" id="pairA" style="color:var(--n0)"><i></i><span>primary</span></span>
       <span class="link"><em id="pairTxt">checking</em></span>
@@ -795,6 +798,12 @@ function route() {
   if (S.view === 'drift') loadDrift();
 }
 window.addEventListener('hashchange', route);
+/* Technitium's logo comes from the primary via the add-on; fall back to the name if it can't */
+(function () {
+  const img = $('#logo'), ok = () => img.parentNode.classList.add('has-logo');
+  img.addEventListener('error', () => img.remove());
+  if (img.complete && img.naturalWidth) ok(); else img.addEventListener('load', ok);
+})();
 $('#pair').addEventListener('click', () => { location.hash = '#drift'; });
 $('#blkPill').addEventListener('click', () => { location.hash = '#blocking'; });
 
@@ -812,7 +821,7 @@ async function loadNodes(quiet) {
 }
 function renderNodes() {
   const v = S.nodes.find(n => n.version);
-  $('#sub').textContent = 'Technitium ' + (v ? v.version + ' ' : '') + 'cluster, ' + S.nodes.length + ' nodes';
+  $('#sub').textContent = (v ? 'v' + v.version + ' ' : '') + 'cluster, ' + S.nodes.length + ' nodes';
   const [a, b] = S.nodes;
   const setPair = (el, n, i) => {
     if (!n) { el.classList.add('hide'); return; }
