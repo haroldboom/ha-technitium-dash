@@ -158,26 +158,6 @@ class TTLCache:
 CACHE = TTLCache()
 
 
-def fetch_logo():
-    """Technitium's own logo, fetched from the primary rather than shipped in this repo."""
-    try:
-        with urllib.request.urlopen(f"{BASE}/img/logo.png", timeout=5) as r:
-            body = r.read(262145)
-    except Exception:
-        return None
-    return body if len(body) <= 262144 and body.startswith(b"\x89PNG\r\n\x1a\n") else None
-
-
-def get_logo():
-    hit = CACHE.peek("logo")
-    if hit and time.time() - hit[0] < hit[2]:
-        return hit[1]
-    body = fetch_logo()
-    with CACHE._lock:
-        CACHE._d["logo"] = (time.time(), body, 86400 if body else 300)
-    return body
-
-
 def cached_tcall(path, params=None):
     params = dict(params or {})
     key = ("t", path, tuple(sorted(params.items())))
@@ -371,17 +351,6 @@ class Handler(BaseHTTPRequestHandler):
             return self.deny("unauthorized", 401)
         if path in ("/", "/index.html"):
             return self.send_static("index.html")
-        if path == "/logo.png":
-            body = get_logo()
-            if not body:
-                return self.deny("not found", 404)
-            self.send_response(200)
-            self.send_header("Content-Type", "image/png")
-            self.send_header("Cache-Control", "max-age=86400")
-            self.send_header("X-Content-Type-Options", "nosniff")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            return self.wfile.write(body)
         if path == "/api/health":
             return self.send_json({"ok": True, "tokenConfigured": bool(TOKEN), "version": VERSION})
         if path == "/api/config":

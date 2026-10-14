@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Technitium</title>
+<title>Technitium cluster</title>
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,11 +117,7 @@ header.top {
   border-bottom: 1px solid var(--line);
 }
 .bar { display: flex; align-items: center; gap: 14px; min-height: 60px; flex-wrap: wrap; padding-top: 6px; padding-bottom: 6px; }
-.brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
-.brand .bt { display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
-.brand img { width: 30px; height: 30px; border-radius: 6px; flex: none; }
-.brand b { font-size: 19px; font-weight: 700; letter-spacing: -.025em; }
-.brand span { font-size: 12.5px; color: var(--ink-3); }
+.bar .pair { margin-right: auto; }
 
 /* the node-pair link: the signature element */
 .pair {
@@ -156,25 +152,19 @@ header.top {
 }
 @media (max-width: 600px) {
   header.top { position: static; }
-  /* two rows: title + refresh + theme, a forced break, then sync pair (stretches) + blocking */
+  /* two rows: the sync pair across the top, then blocking on the left and the refresh controls on the right */
   .bar { gap: 8px; }
-  .bar::after { content: ""; flex-basis: 100%; order: 3; }
-  .brand { order: 0; flex: 1 1 0; min-width: 0; }
-  .brand b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .brand span { display: none; }
-  .brand.has-logo .bt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .rfr { order: 1; gap: 4px; }
+  .bar .pair { flex: 1 1 100%; min-width: 0; height: 36px; padding: 0 12px; margin-right: 0; justify-content: space-between; }
+  .pair .nd { min-width: 0; }
+  .pair .nd > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pair .link { flex: 1 1 auto; width: auto; min-width: 52px; margin: 0 8px; }
+  #blkPill { flex: 0 1 auto; min-width: 0; height: 36px; margin-right: auto; }
+  #blkPill > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .rfr { gap: 4px; }
   .rfr .upd .w { display: none; }
   .rsel select { padding: 0 18px 0 26px; font-size: 12.5px; }
   .rsel svg { left: 7px; }
   .rsel::after { right: 7px; }
-  #themeBtn { order: 2; }
-  .pair { order: 4; flex: 1 1 0; min-width: 0; height: 36px; padding: 0 10px; }
-  .pair .nd { min-width: 0; }
-  .pair .nd > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .pair .link { flex: 1 1 auto; width: auto; min-width: 58px; margin: 0 6px; }
-  #blkPill { order: 5; flex: 0 1 auto; min-width: 0; max-width: 46%; height: 36px; }
-  #blkPill > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 }
 @media (max-width: 359px) { .bar .rfr .upd { display: none; } }
 @keyframes pulse { 0% { left: 0; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { left: calc(100% - 10px); opacity: 0; } }
@@ -504,6 +494,7 @@ input.big { font-family: var(--mono); font-size: 18px; padding: 11px 14px; }
 
 .skel { color: var(--ink-3); }
 footer { color: var(--ink-3); font-size: 12.5px; padding: 20px 0 40px; text-align: center; }
+footer #themeBtn { margin-top: 12px; font-size: 12.5px; }
 </style>
 </head>
 <body>
@@ -521,7 +512,7 @@ footer { color: var(--ink-3); font-size: 12.5px; padding: 20px 0 40px; text-alig
 
 <header class="top">
   <div class="wrap bar">
-    <div class="brand"><img id="logo" src="logo.png" alt="" width="30" height="30"><div class="bt"><b>Technitium</b><span id="sub">DNS cluster</span></div></div>
+    <h1 class="sr">Technitium cluster</h1>
     <button class="pair" id="pair" data-sync="unk" title="Open drift check" aria-label="Sync status between nodes">
       <span class="nd" id="pairA" style="color:var(--n0)"><i></i><span>primary</span></span>
       <span class="link"><em id="pairTxt">checking</em></span>
@@ -537,7 +528,6 @@ footer { color: var(--ink-3); font-size: 12.5px; padding: 20px 0 40px; text-alig
         </select></label>
       <button class="icon-btn" id="rfrBtn" aria-label="Refresh now" title="Refresh now"><svg aria-hidden="true"><use href="#i-refresh"/></svg></button>
     </div>
-    <button class="icon-btn" id="themeBtn" aria-label="Switch theme"><svg><use href="#i-moon"/></svg></button>
   </div>
   <div class="wrap">
     <nav class="tabs" aria-label="Views">
@@ -658,7 +648,9 @@ footer { color: var(--ink-3); font-size: 12.5px; padding: 20px 0 40px; text-alig
     <div id="driftOut"><div class="panel skel">Comparing nodes…</div></div>
   </section>
 </main>
-<footer class="wrap" id="foot">Settings live in the Technitium console. This page covers the daily stuff for both nodes.<span id="ver"></span></footer>
+<footer class="wrap" id="foot">Settings live in the Technitium console. This page covers the daily stuff for both nodes.<span id="ver"></span>
+  <div><button class="pill" id="themeBtn"></button></div>
+</footer>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
@@ -773,8 +765,7 @@ function effTheme() {
 }
 function paintThemeBtn() {
   const t = effTheme();
-  $('#themeBtn').innerHTML = icon(t === 'dark' ? 'i-sun' : 'i-moon');
-  $('#themeBtn').setAttribute('aria-label', t === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  $('#themeBtn').innerHTML = icon(t === 'dark' ? 'i-sun' : 'i-moon') + '<span>' + (t === 'dark' ? 'Light theme' : 'Dark theme') + '</span>';
 }
 $('#themeBtn').addEventListener('click', () => {
   const next = effTheme() === 'dark' ? 'light' : 'dark';
@@ -798,12 +789,6 @@ function route() {
   if (S.view === 'drift') loadDrift();
 }
 window.addEventListener('hashchange', route);
-/* Technitium's logo comes from the primary via the add-on; fall back to the name if it can't */
-(function () {
-  const img = $('#logo'), ok = () => img.parentNode.classList.add('has-logo');
-  img.addEventListener('error', () => img.remove());
-  if (img.complete && img.naturalWidth) ok(); else img.addEventListener('load', ok);
-})();
 $('#pair').addEventListener('click', () => { location.hash = '#drift'; });
 $('#blkPill').addEventListener('click', () => { location.hash = '#blocking'; });
 
@@ -820,8 +805,6 @@ async function loadNodes(quiet) {
   renderNodes();
 }
 function renderNodes() {
-  const v = S.nodes.find(n => n.version);
-  $('#sub').textContent = (v ? 'v' + v.version + ' ' : '') + 'cluster, ' + S.nodes.length + ' nodes';
   const [a, b] = S.nodes;
   const setPair = (el, n, i) => {
     if (!n) { el.classList.add('hide'); return; }

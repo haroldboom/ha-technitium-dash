@@ -102,24 +102,6 @@ class ServerTest(unittest.TestCase):
         with mock.patch.object(server, "INGRESS_PROXY", "127.0.0.1"):
             self.assertEqual(self.req("/api/nodes", key=None)[0], 200)
 
-    # --- logo
-    def test_logo_proxied_and_cached(self):
-        png = b"\x89PNG\r\n\x1a\n" + b"x" * 20
-        with mock.patch.object(server, "fetch_logo", return_value=png) as f:
-            for _ in range(3):
-                r = urllib.request.Request(self.base + "/logo.png", headers={"Authorization": "Bearer secret-key"})
-                with urllib.request.urlopen(r, timeout=10) as resp:
-                    self.assertEqual(resp.headers["Content-Type"], "image/png")
-                    self.assertEqual(resp.read(), png)
-            self.assertEqual(f.call_count, 1)
-
-    def test_logo_missing_is_404(self):
-        with mock.patch.object(server, "fetch_logo", return_value=None):
-            self.assertEqual(self.req("/logo.png")[0], 404)
-
-    def test_logo_needs_auth_off_ingress(self):
-        self.assertEqual(self.req("/logo.png", key=None)[0], 401)
-
     # --- caching
     def test_reads_are_cached(self):
         for _ in range(5):

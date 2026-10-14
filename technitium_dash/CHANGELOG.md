@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.4
+
+- Header drops the title and logo (the Home Assistant panel already has a heading). The
+  sync status leads the header (its own row on phones), with blocking and the refresh
+  controls next to it or below.
+- The light/dark toggle moved to the footer.
+
 ## 0.1.3
 
 - Fix: the add-on never announced itself to Supervisor, so the integration didn't show up
