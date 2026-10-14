@@ -48,6 +48,8 @@ class FakeTechnitium:
         if path == "dashboard/stats/get":
             return {"cluster": stats(300, 30, 200), "cyberdyne.dns.home.arpa": stats(200, 20, 150),
                     "umbrel.dns.home.arpa": stats(100, 10, 50)}[node]
+        if path == "dashboard/stats/getTop" and params.get("statsType") == "TopClients":
+            return {"status": "ok", "response": {"topClients": [{"name": f"10.0.0.{i}", "hits": 1} for i in range(10)]}}
         if path == "settings/get":
             return {"status": "ok", "response": {"enableBlocking": True, "temporaryDisableBlockingTill": None,
                                                  "blockingType": "NxDomain", "blockListUrls": ["a"]}}
@@ -107,6 +109,17 @@ class ServerTest(unittest.TestCase):
         for _ in range(5):
             self.req("/tapi/dashboard/stats/get?node=cluster&type=LastHour")
         self.assertEqual(self.fake.count("dashboard/stats/get"), 1)
+
+    def test_cluster_clients_are_distinct_count(self):
+        # Technitium's own cluster totalClients undercounts; we count the full client list.
+        code, body = self.req("/tapi/dashboard/stats/get?node=cluster&type=LastHour")
+        self.assertEqual(body["response"]["stats"]["totalClients"], 10)
+        top = [p for path, p in self.fake.calls if path == "dashboard/stats/getTop"]
+        self.assertEqual(top[0]["limit"], "100000")
+        code, body = self.req("/tapi/dashboard/stats/get?node=umbrel.dns.home.arpa&type=LastHour")
+        self.assertEqual(self.fake.count("dashboard/stats/getTop"), 1)
+        self.assertEqual(body["response"]["stats"]["totalQueries"], 100)
+        self.assertEqual(server.get_summary()["cluster"]["totalClients"], 10)
 
     def test_cache_is_single_flight(self):
         def slow(path, params=None, timeout=15):

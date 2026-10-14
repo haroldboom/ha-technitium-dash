@@ -173,6 +173,26 @@ def cached_tcall(path, params=None):
     return CACHE.get(key, CACHE_S, lambda: tcall(path, params), err_ttl=ERROR_TTL)
 
 
+def stats_get(params):
+    """dashboard/stats/get, but with a real distinct-client count for the cluster.
+
+    Technitium's cluster totalClients isn't the number of distinct clients across
+    nodes (it came back 7 for nodes with 7 and 5 clients, 10 distinct), so count
+    the cluster's full TopClients list instead.
+    """
+    r = cached_tcall("dashboard/stats/get", params)
+    if params.get("node") != "cluster" or r.get("status") != "ok":
+        return r
+    top = cached_tcall("dashboard/stats/getTop", {
+        **{k: v for k, v in params.items() if k in ("type", "start", "end", "utc")},
+        "node": "cluster", "statsType": "TopClients", "limit": "100000"})
+    if top.get("status") != "ok":
+        return r
+    resp = dict(r["response"])
+    resp["stats"] = {**resp["stats"], "totalClients": len(top["response"].get("topClients") or [])}
+    return {**r, "response": resp}
+
+
 def get_nodes():
     def build():
         r = tcall("admin/cluster/state")
@@ -278,7 +298,7 @@ RANGES = {"LastHour", "LastDay", "LastWeek", "LastMonth", "LastYear"}
 
 
 def _stats(node, rng):
-    r = cached_tcall("dashboard/stats/get", {"node": node, "type": rng, "utc": "true"})
+    r = stats_get({"node": node, "type": rng, "utc": "true"})
     if r.get("status") != "ok":
         return None, r.get("errorMessage") or r.get("status")
     s = r["response"]["stats"]
@@ -385,6 +405,8 @@ class Handler(BaseHTTPRequestHandler):
                 if not ql:
                     return self.send_json({"status": "error", "errorMessage": "Query Logs app not found on node"})
                 params["name"], params["classPath"] = ql
+            if tpath == "dashboard/stats/get":
+                return self.send_json(stats_get(params))
             return self.send_json(cached_tcall(tpath, params))
         return self.deny("not found", 404)
 

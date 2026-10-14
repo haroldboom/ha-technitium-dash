@@ -1,5 +1,5 @@
 name: Technitium Cluster Dashboard
-version: "0.3.1"
+version: "0.3.2"
 slug: technitium_dash
 description: Daily-use dashboard for a Technitium DNS cluster, with both nodes side by side and a drift check
 url: https://github.com/haroldboom/ha-technitium-dash

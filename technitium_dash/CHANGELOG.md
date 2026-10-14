@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2
+
+- The cluster **Clients** count is now the number of distinct devices across all nodes.
+  Technitium's own cluster figure undercounted (it showed 7 for nodes with 7 and 5
+  clients when 10 devices were involved). Fixes the dashboard card and the
+  integration's cluster Clients sensor.
+
 ## 0.3.1
 
 - The add-on store page now has a description (the add-on folder had no README).
